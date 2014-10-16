@@ -11,7 +11,7 @@ import routes
 
 
 from tornado.options import options
-from common.appdefine import mclusterManagerDefine
+from common.appdefine import appDefine
 from common.sceduler_opers import Sceduler_Opers
 
 class Application(tornado.web.Application):
