@@ -103,6 +103,7 @@ class Startgbalancer(APIHandler):
                                log_message= "this glb is running", \
                                response = "please check envirment")
         f = open(config_file, 'w')
+        logging.info("start gbalancer: %s" % (glb_config))
         f.write(json.dumps(glb_config,sort_keys=True,indent=4))
         f.flush()
         f.close()
@@ -135,14 +136,14 @@ class Stopgbalancer(APIHandler):
                                 notification = "direct", \
                                 log_message= "start GLB: lost port argument",\
                                 response =  "please input port.")
-        cmd = r'netstat -ntlp|grep %s|grep -v grep' % (port)
+        cmd = r'netstat -ntlp|grep -w %s|grep -v grep' % (port)
         result = self.invokeCommand.run_check_shell(cmd).strip().split('\n')
         if result[0] == '':
             raise HTTPAPIError(status_code=417, error_detail="this glb is stopped",\
                                notification = "direct", \
                                log_message= "this glb is stopped", \
                                response = "please check envirment")
-
+        logging.info("stop gbalancer(port): %s" % (port))
         temp = re.split('\s+', result[0])
         glb_pid = temp[len(temp)-1].split('/')[0]
         self.invokeCommand.run_check_shell(r'kill -9 %s' % (glb_pid))
