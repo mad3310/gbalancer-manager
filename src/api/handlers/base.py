@@ -4,7 +4,7 @@ from tornado.web import RequestHandler,HTTPError
 from tornado import escape
 from tornado.options import options
 
-from common.zkOpers import ZkOpers
+#from common.zkOpers import ZkOpers
 from common.utils.exceptions import HTTPAPIError
 from common.utils.mail import send_email
 
@@ -14,7 +14,7 @@ import traceback
 
 class BaseHandler(RequestHandler):
     
-    zkOper = ZkOpers('127.0.0.1',2181)
+    #zkOper = ZkOpers('127.0.0.1',2181)
     
     logger = logging.getLogger('root')
     

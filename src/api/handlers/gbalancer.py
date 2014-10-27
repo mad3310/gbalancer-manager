@@ -28,52 +28,70 @@ class Startgbalancer(APIHandler):
     def post(self):
         user = self.get_argument('user',None)
         passwd = self.get_argument('passwd',None)
+        service = self.get_argument('service', None)
         iplist_port = self.get_argument('iplist_port',None)
         port = self.get_argument('port',None)
         args = self.get_argument('args',None)
 
-        if user is None or user == '':
-            raise HTTPAPIError(status_code=417, error_detail="lost user argument",\
-                                notification = "direct", \
-                                log_message= "start GLB: lost user argument",\
-                                response =  "please write user name.")
-        if passwd is None or passwd == '':
-            raise HTTPAPIError(status_code=417, error_detail="lost passwd argument",\
-                                notification = "direct", \
-                                log_message= "start GLB: lost passwd argument",\
-                                response =  "please write password.")
+        if service is None:
+            raise HTTPAPIError(status_code=417, error_detail="lost service arguments", \
+                               notification = "direct", \
+                               log_message= "start GLB: lost service argument",\
+                               response =  "please input service.")
+        if service == 'mysql':
+            lost_args = []
+            if user is None:
+                lost_args.append("user")
+            if passwd is None:
+                lost_args.append("passwd")
+            if len(lost_args) != 0:
+                raise HTTPAPIError(status_code=417, error_detail="lost %s arguments" % (lost_args), \
+                                   notification = "direct", \
+                                   log_message= "start GLB: lost %s argument" % (lost_args),\
+                                   response =  "please input %s." % (lost_args))
         if iplist_port is None or iplist_port == '':
             raise HTTPAPIError(status_code=417, error_detail="lost iplist_port argument",\
                                 notification = "direct", \
                                 log_message= "start GLB: lost iplist_port argument",\
-                                response =  "please write iplist and server port<ip:port>.")
+                                response =  "please input iplist and server port<ip:port>.")
         if port is None or port == '':
             raise HTTPAPIError(status_code=417, error_detail="lost port argument",\
                                 notification = "direct", \
                                 log_message= "start GLB: lost port argument",\
-                                response =  "please write port.")
+                                response =  "please input port.")
         if args is None:
-            args = r'--daemon'
+            args = ''
         
-        #glb_config='{"User": "monitor","Pass": "1234567","Addr": "0.0.0.0","Port": "3306","Backend": ["10.200.86.14:3306","10.200.86.15:3306","10.200.86.16:3306"]}'
+        #mysql:{"User": "monitor","Pass": "1234567","Addr": "0.0.0.0","Port": "3306","Backend": ["10.200.86.14:3306","10.200.86.15:3306","10.200.86.16:3306"]}
+        #manager:{"Addr": "0.0.0.0","Port": "8888","Service":"http","Backend": ["10.200.86.74:8888","10.200.86.75:8888","10.200.86.76:8888"]}
         glb_config={}
-        glb_config['User'] = user
-        glb_config['Pass'] = passwd
+        if user:
+            glb_config['User'] = user
+        if passwd:
+            glb_config['Pass'] = passwd
+        if service and service != 'mysql':
+            glb_config['Service'] = service
         glb_config['Addr'] = '0.0.0.0'
         glb_config['Port'] = port
         ips = iplist_port.split(",")
         glb_config['Backend'] = ips
-        for ip in ips:
-            i, p = ip.split(':')
-            try:
-                conn=MySQLdb.Connect(host=i,user=user,passwd=passwd,port=int(p))
-            except Exception, e:
-                conn=None
-            if conn is None:
-                raise HTTPAPIError(status_code=417, error_detail="cann't connect to mysql",\
-                                   notification = "direct", \
-                                   log_message= "cann't connect to mysql", \
-                                   response = "please check mysqld or user password")
+        if service == 'mysql':
+            for ip in ips:
+                if not ":" in ip:
+                    raise HTTPAPIError(status_code=417, error_detail="iplist_port input error",\
+                                       notification = "direct", \
+                                       log_message= "iplist_port input error", \
+                                       response = "please check iplist_port")
+                i, p = ip.split(':')
+                try:
+                    conn=MySQLdb.Connect(host=i,user=user,passwd=passwd,port=int(p))
+                except Exception, e:
+                    conn=None
+                if conn is None:
+                    raise HTTPAPIError(status_code=417, error_detail="cann't connect to mysql",\
+                                       notification = "direct", \
+                                       log_message= "cann't connect to mysql", \
+                                       response = "please check mysqld or user password")
         if not os.path.exists(os.path.dirname(options.glb_json_file_name)):
             os.mkdir(os.path.dirname(options.glb_json_file_name))
         config_file = options.glb_json_file_name % (port)
@@ -89,9 +107,10 @@ class Startgbalancer(APIHandler):
         f.flush()
         f.close()
 
-        self.invokeCommand.run_service_shell(options.start_gbalancer % (config_file, args))
+        #self.invokeCommand.run_service_shell(options.start_gbalancer % (config_file, args))
+        self.invokeCommand.run_check_shell(options.start_gbalancer % (config_file, args))
         glb_proc = self.invokeCommand.run_check_shell(cmd).strip().split('\n')
-        if len(glb_proc) != 1 and glb_proc[0] == '':
+        if len(glb_proc) != 1 or glb_proc[0] == '':
             raise HTTPAPIError(status_code=417, error_detail="glb start error",\
                                notification = "direct", \
                                log_message= "glb start error", \
@@ -115,7 +134,7 @@ class Stopgbalancer(APIHandler):
             raise HTTPAPIError(status_code=417, error_detail="lost port argument",\
                                 notification = "direct", \
                                 log_message= "start GLB: lost port argument",\
-                                response =  "please write port.")
+                                response =  "please input port.")
         cmd = r'netstat -ntlp|grep %s|grep -v grep' % (port)
         result = self.invokeCommand.run_check_shell(cmd).strip().split('\n')
         if result[0] == '':

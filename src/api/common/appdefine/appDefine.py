@@ -26,8 +26,6 @@ define('smtp_tls', default = False, type = bool, help = 'smtp tls')
 
 define("base_dir", default=base_dir, help="project base dir")
 define("gbalancer_manager_property",default=join(base_dir, "config","gbalancerManager.property"), help="gbalancer manager config file")
-define("data_node_property",default=join(base_dir,"config","dataNode.property"), help="data node config file")
-define("cluster_property",default=join(base_dir,"config","cluster.property"), help="cluster config file")
 
 
 define("alarm_serious", default="tel:sms:email", help="alarm level is serious")
@@ -35,5 +33,5 @@ define("alarm_general", default="sms:email", help="alarm level is general")
 define("alarm_nothing", default="nothing", help="no alarm")
 
 
-define("start_gbalancer",default="nohup gbalancer --config=%s %s >/dev/null 2>&1 &", help="start gbalancer")
+define("start_gbalancer",default="nohup /usr/bin/gbalancer --config=%s %s >/dev/null 2>&1 &", help="start gbalancer")
 define("glb_json_file_name",default="/etc/gbalancer/%sconfiguration.json", help="gbalancer config file")

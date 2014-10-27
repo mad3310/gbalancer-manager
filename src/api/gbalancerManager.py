@@ -6,6 +6,7 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.options
 import tornado.web
+import logging.config
 
 import routes
 
@@ -44,10 +45,12 @@ def main():
 #         return 
 #     else :
 #         pass  
+    config_path = os.path.join(options.base_dir, "config")
+    logging.config.fileConfig(config_path + '/logging.conf')
     tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(Application())
     http_server.listen(options.port)
-    
+
     sceduler_opers = Sceduler_Opers()
     
     tornado.ioloop.IOLoop.instance().start()
