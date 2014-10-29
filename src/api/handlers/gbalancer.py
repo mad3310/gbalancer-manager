@@ -112,9 +112,9 @@ class Startgbalancer(APIHandler):
         #self.invokeCommand.run_service_shell(options.start_gbalancer % (config_file, args))
         self.invokeCommand.run_check_shell(options.start_gbalancer % (config_file, args))
         glb_proc = self.invokeCommand.run_check_shell(cmd).strip().split('\n')
-        #if len(glb_proc) != 1 or glb_proc[0] == '':
         logging.info("glb_proc: %s" % str(glb_proc))
-        if len(glb_proc) == 0:
+        if len(glb_proc) != 1 or glb_proc[0] == '':
+        #if len(glb_proc) == 0:
             raise HTTPAPIError(status_code=417, error_detail="glb start error",\
                                notification = "direct", \
                                log_message= "glb start error", \
