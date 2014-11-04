@@ -11,6 +11,7 @@ import MySQLdb
 import json
 import os
 import re
+import time
 
 '''
 Created on 2013-9-16
@@ -110,6 +111,7 @@ class Startgbalancer(APIHandler):
         f.close()
 
         #self.invokeCommand.run_service_shell(options.start_gbalancer % (config_file, args))
+        time.sleep(1)
         self.invokeCommand.run_check_shell(options.start_gbalancer % (config_file, args))
         glb_proc = self.invokeCommand.run_check_shell(cmd).strip().split('\n')
         logging.info("glb_proc: %s" % str(glb_proc))
