@@ -111,8 +111,8 @@ class Startgbalancer(APIHandler):
         f.close()
 
         #self.invokeCommand.run_service_shell(options.start_gbalancer % (config_file, args))
-        time.sleep(1)
         self.invokeCommand.run_check_shell(options.start_gbalancer % (config_file, args))
+        time.sleep(1)
         glb_proc = self.invokeCommand.run_check_shell(cmd).strip().split('\n')
         logging.info("glb_proc: %s" % str(glb_proc))
         if len(glb_proc) != 1 or glb_proc[0] == '':
