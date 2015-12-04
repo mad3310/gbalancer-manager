@@ -25,8 +25,6 @@ NAME=gbalancer-manager
 
 PIDFILE=/var/run/${NAME}.pid
 CONSOLELOG=/var/log/${NAME}/console.log
-ROOTLOG=/var/log/${NAME}/root.log
-ERRORLOG=/var/log/${NAME}/error.log
 
 start () {
 
@@ -34,12 +32,6 @@ start () {
 		RET=1
 		failure
 	fi
-
-	[ -d $MM_LOG_DIR ] || mkdir -p $MM_LOG_DIR
-	chown $USER:$GROUP $MM_LOG_DIR
-	chown $USER:$GROUP $CONSOLELOG
-    chown $USER:$GROUP $ROOTLOG
-    chown $USER:$GROUP $ERRORLOG
 
 	touch $PIDFILE
 	chown $USER:$GROUP $PIDFILE
@@ -73,7 +65,6 @@ stop () {
 
 	echo
         return $RET
-
 }
 
 case "$1" in
