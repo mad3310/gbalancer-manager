@@ -1,8 +1,8 @@
 NAME=gbalancer-manager
 
 MM_LOG_DIR=/var/log/$NAME
-USER=root
-GROUP=root
+USER=gbalancer-manager
+GROUP=gbalancer
 PIDDIR=/var/run/$NAME
 PIDFILE=$PIDDIR/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
