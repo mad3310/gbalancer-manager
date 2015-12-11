@@ -37,13 +37,10 @@ start () {
 	fi
 	
     [ -d $MM_LOG_DIR ] || mkdir -p $MM_LOG_DIR
-    chown $USER:$GROUP $MM_LOG_DIR
+    chown -R $USER:$GROUP $MM_LOG_DIR
 
 	touch $PIDFILE
 	chown $USER:$GROUP $PIDFILE
-	chown $USER:$GROUP $CONSOLELOG
-    chown $USER:$GROUP $ROOTLOG
-    chown $USER:$GROUP $ERRORLOG
 
 	MMCMD="python /opt/letv/gbalancer-manager/api/gbalancerManager.py >>$CONSOLELOG 2>&1 & 	\
 		echo "'$! >'"$PIDFILE"
